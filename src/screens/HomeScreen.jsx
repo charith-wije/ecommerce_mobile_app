@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {fetchData} from '../api/MainAPI';
-import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
+import IIcon from 'react-native-vector-icons/Ionicons';
 
-const HomeScreen = () => {
+const HomeScreen = ({navigation}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [data, setData] = useState(null);
 
@@ -27,7 +27,19 @@ const HomeScreen = () => {
   const getFullData = async () => {
     const res = await fetchData();
     console.log(res);
-    setData(res.data);
+    setData(res.data.data);
+  };
+
+  // Function to filter data based on search query
+  const filterData = () => {
+    return data.filter(item =>
+      item.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  };
+
+  // Update searchQuery state when input changes
+  const handleSearch = text => {
+    setSearchQuery(text);
   };
 
   const renderItem = ({item, index}) => {
@@ -38,6 +50,9 @@ const HomeScreen = () => {
           height: squareSize * 0.95,
           backgroundColor: 'white',
           marginBottom: '5%',
+        }}
+        onPress={() => {
+          navigation.navigate('ProductDetails', {item});
         }}>
         <Image
           style={{width: '100%', height: '50%'}}
@@ -88,13 +103,13 @@ const HomeScreen = () => {
           <View style={styles.mainContainer}>
             <TextInput
               style={styles.mainContainerSearchBar}
-              onChangeText={text => setSearchQuery(text)}
+              onChangeText={handleSearch}
               value={searchQuery}
               placeholder="Search..."
               placeholderTextColor="grey"
             />
             <View>
-              <MCIcon name="cart" size={35} color="#3b2eb0" />
+              <IIcon name="cart" size={35} color="#3b2eb0" />
               <View
                 style={{
                   backgroundColor: 'red',
@@ -120,7 +135,7 @@ const HomeScreen = () => {
               paddingBottom: 35,
             }}>
             <FlatList
-              data={data.data}
+              data={filterData()}
               renderItem={renderItem}
               keyExtractor={item => item.id}
               numColumns={2}
@@ -143,9 +158,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     marginTop: 15,
     marginBottom: 15,
-    //marginHorizontal: 10,
     flexDirection: 'row',
-    //backgroundColor: 'red',
   },
 
   mainContainerSearchBar: {
