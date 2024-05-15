@@ -2,44 +2,33 @@ import {
   View,
   Text,
   TextInput,
-  StyleSheet,
   Image,
-  Dimensions,
   FlatList,
   TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {fetchData} from '../api/MainAPI';
 import IIcon from 'react-native-vector-icons/Ionicons';
 import {getProducts} from '../redux/Actions/ProductAction';
+import tw from 'twrnc';
 
 let eachUnitsOfCart = null;
 
 const HomeScreen = ({navigation, route}) => {
-  // const {cartItems} = useSelector(state => state.cart);
-
   const {products, loader} = useSelector(state => state.products);
   const dispatch = useDispatch();
 
   const [searchQuery, setSearchQuery] = useState('');
-  //const [data, setData] = useState(null);
   const [rerender, setRerender] = useState(false);
-
-  // Get the width of the screen
-  const screenWidth = Dimensions.get('window').width;
-  const squareSize = screenWidth * 0.45; // Adjust the multiplier as needed
 
   useEffect(() => {
     dispatch(getProducts());
-    //getFullData();
   }, []);
 
   useEffect(() => {
     if (!loader) {
       getCartUnitsInEachProduct();
     }
-    console.log('data.length');
     setRerender(!rerender);
   }, [route.params?.cartItems, searchQuery]);
 
@@ -50,20 +39,12 @@ const HomeScreen = ({navigation, route}) => {
         eachUnitsOfCart.push(0);
         route.params?.cartItems.map((cartItem, cartItemIndex) => {
           if (cartItem.id[0] == item.id) {
-            console.log('k');
             eachUnitsOfCart[index] = eachUnitsOfCart[index] + cartItem.units;
           }
         });
       });
-      console.log(eachUnitsOfCart);
     }
   };
-
-  // const getFullData = async () => {
-  //   const res = await fetchData();
-  //   console.log(res);
-  //   setData(res.data.data);
-  // };
 
   // Function to filter data based on search query
   const filterData = () => {
@@ -78,65 +59,39 @@ const HomeScreen = ({navigation, route}) => {
   };
 
   const renderItem = ({item, index}) => {
-    console.log(index);
     return (
       <TouchableOpacity
-        style={{
-          width: squareSize * 0.95,
-          height: squareSize * 0.95,
-          backgroundColor: 'white',
-          marginBottom: '5%',
-        }}
+        style={tw`w-43 aspect-square bg-white mb-4`}
         onPress={() => {
           navigation.navigate('ProductDetails', {item});
         }}>
         {eachUnitsOfCart !== null ? (
           eachUnitsOfCart[index] !== 0 ? (
             <View
-              style={{
-                width: '20%',
-                aspectRatio: 1,
-                backgroundColor: 'black',
-                borderRadius: 20,
-                justifyContent: 'center',
-                alignItems: 'center',
-                position: 'absolute',
-                right: 5,
-                top: 5,
-              }}>
-              <Text style={{color: 'white', fontSize: 16}}>
+              style={tw`w-7 aspect-square bg-black rounded-full justify-center items-center absolute right-3 top-3`}>
+              <Text style={tw`text-white text-base`}>
                 {eachUnitsOfCart !== null ? eachUnitsOfCart[index] : 0}
               </Text>
             </View>
           ) : null
         ) : null}
         <Image
-          style={{width: '100%', height: '50%'}}
+          style={tw`w-full h-1/2`}
           source={{
             uri: item.mainImage,
           }}
           resizeMode="contain"
           onError={error => console.error('Error loading image:', error)}
         />
-        <View
-          style={{
-            paddingLeft: '10%',
-            height: '50%',
-            justifyContent: 'center',
-          }}>
-          <Text
-            style={{
-              color: '#50607a',
-              fontWeight: '500',
-              fontSize: 17,
-            }}>
+        <View style={tw`pl-4 h-1/2 justify-center`}>
+          <Text style={tw`text-gray-700 font-medium text-base`}>
             {item.brandName}
           </Text>
-          <Text style={{color: 'black', fontWeight: '500'}}>
+          <Text style={tw`text-black font-medium`}>
             {'\u00A3'}
             {item.price.amount}
           </Text>
-          <Text style={{color: 'black', fontSize: 12}}>{item.name}</Text>
+          <Text style={tw`text-black text-xs`}>{item.name}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -145,20 +100,16 @@ const HomeScreen = ({navigation, route}) => {
   return (
     <>
       {loader && (
-        <View
-          style={{
-            flex: 1,
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}>
-          <Text style={{fontSize: 30, fontWeight: '600'}}>Loading...</Text>
+        <View style={tw`flex-1 justify-center items-center`}>
+          <Text style={tw`text-xl font-semibold`}>Loading...</Text>
         </View>
       )}
       {!loader && (
         <>
-          <View style={styles.mainContainer}>
+          <View
+            style={tw`w-90 h-1/15 justify-center items-center self-center mt-3 mb-3 flex-row`}>
             <TextInput
-              style={styles.mainContainerSearchBar}
+              style={tw`h-full w-80 mr-3 pl-5 border border-gray-400 rounded-lg`}
               onChangeText={handleSearch}
               value={searchQuery}
               placeholder="Search..."
@@ -172,17 +123,7 @@ const HomeScreen = ({navigation, route}) => {
               {route.params?.cartItems &&
                 route.params?.cartItems.length !== 0 && (
                   <View
-                    style={{
-                      backgroundColor: 'red',
-                      width: '50%',
-                      aspectRatio: 1,
-                      borderRadius: 30,
-                      position: 'absolute',
-                      right: 0,
-                      top: -5,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    }}>
+                    style={tw`bg-red-500 w-1/2 aspect-w-1 aspect-h-1 rounded-3xl absolute right-0 top-negative-5 justify-center items-center`}>
                     <Text style={{fontSize: 13}}>
                       {route.params?.cartItems
                         ? route.params?.cartItems.length
@@ -193,19 +134,13 @@ const HomeScreen = ({navigation, route}) => {
             </TouchableOpacity>
           </View>
 
-          <View
-            style={{
-              width: '90%',
-              height: '94%',
-              alignSelf: 'center',
-              paddingBottom: 35,
-            }}>
+          <View style={tw`w-90 h-90/100 self-center pb-4`}>
             <FlatList
               data={filterData()}
               renderItem={renderItem}
               keyExtractor={item => item.id}
               numColumns={2}
-              columnWrapperStyle={{justifyContent: 'space-between'}}
+              columnWrapperStyle={tw`justify-between`}
             />
           </View>
         </>
@@ -213,30 +148,5 @@ const HomeScreen = ({navigation, route}) => {
     </>
   );
 };
-
-const styles = StyleSheet.create({
-  mainContainer: {
-    width: '90%',
-    height: '6%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 5,
-    alignSelf: 'center',
-    marginTop: 15,
-    marginBottom: 15,
-    flexDirection: 'row',
-  },
-
-  mainContainerSearchBar: {
-    height: '100%',
-    width: '87%',
-    marginRight: '3%',
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingLeft: 15,
-    color: '#000',
-  },
-});
 
 export default HomeScreen;

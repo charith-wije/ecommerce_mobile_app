@@ -1,12 +1,5 @@
-import {
-  View,
-  Text,
-  Dimensions,
-  Image,
-  TouchableOpacity,
-  FlatList,
-} from 'react-native';
-import React, {useEffect} from 'react';
+import {View, Text, Image, TouchableOpacity, FlatList} from 'react-native';
+import React from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import MCIcon from 'react-native-vector-icons/MaterialCommunityIcons';
 import OcticonsIcon from 'react-native-vector-icons/Octicons';
@@ -16,20 +9,15 @@ import {
   removeWholeItem,
 } from '../redux/reducers/cartReducer';
 
+import tw from 'twrnc';
+
 const CartDetailScreen = ({navigation}) => {
   const dispatch = useDispatch();
   const {cartItems} = useSelector(state => state.cart);
 
-  useEffect(() => {
-    console.log(cartItems);
-  }, []);
-
   const handleItemAdd = item => {
-    console.log(item.units, 'ppppppppppppppppppp');
     dispatch(addItem(item));
   };
-
-  const handleItemRemove = () => {};
 
   const totalSum = cartItems.reduce(
     (acc, item) => acc + parseFloat(item.sum),
@@ -38,60 +26,26 @@ const CartDetailScreen = ({navigation}) => {
 
   const renderItem = ({item, index}) => {
     return (
-      <View
-        style={{
-          width: '100%',
-          height: Dimensions.get('window').width * 0.33,
-          borderWidth: 2,
-          borderRadius: 10,
-          borderColor: 'red',
-          padding: 5,
-          marginBottom: 10,
-        }}>
-        <View style={{flexDirection: 'row', flex: 1}}>
-          <View
-            style={{
-              width: '60%',
-              height: '100%',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-            }}>
-            <Text style={{textAlign: 'center'}}>
+      <View style={tw`w-full h-33 border-2 rounded-lg border-red-500 p-2 mb-3`}>
+        <View style={tw`flex-row flex-1`}>
+          <View style={tw`w-3/5 h-full items-center justify-between`}>
+            <Text style={tw`text-center`}>
               {item.name}
               {` Size ${item.choosedSize} `}
             </Text>
-            <Text style={{textAlign: 'center'}}>
+            <Text style={tw`text-center`}>
               {item.price.currency}
               {item.sum}
             </Text>
             <Image
               source={{uri: item.mainImage}}
-              style={{
-                height: '50%',
-                aspectRatio: 1,
-                resizeMode: 'contain',
-              }}
+              style={tw`h-1/2 aspect-video resizeMode-contain`}
             />
           </View>
-          <View style={{flexDirection: 'row'}}>
-            <View
-              style={{
-                width: '40%',
-                height: '100%',
-                alignItems: 'center',
-                paddingVertical: 10,
-                justifyContent: 'space-between',
-              }}>
+          <View style={tw`flex-row`}>
+            <View style={tw`w-2/5 h-full items-center py-2 justify-between`}>
               <TouchableOpacity
-                style={{
-                  width: Dimensions.get('window').width * 0.07,
-                  aspectRatio: 1,
-                  borderRadius: 20,
-                  borderWidth: 2,
-                  borderColor: 'red',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                style={tw`w-7 h-7 rounded-full border-2 border-red-500 items-center justify-center`}
                 onPress={() => {
                   let tempItem = item;
                   // Make a copy of the object to avoid mutating state directly
@@ -104,15 +58,7 @@ const CartDetailScreen = ({navigation}) => {
               </TouchableOpacity>
               <Text>{item.units}</Text>
               <TouchableOpacity
-                style={{
-                  width: Dimensions.get('window').width * 0.07,
-                  aspectRatio: 1,
-                  borderRadius: 20,
-                  borderWidth: 2,
-                  borderColor: 'red',
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
+                style={tw`w-7 h-7 rounded-full border-2 border-red-500 items-center justify-center`}
                 onPress={() => {
                   dispatch(removeItem(item));
                 }}>
@@ -122,7 +68,7 @@ const CartDetailScreen = ({navigation}) => {
           </View>
         </View>
         <TouchableOpacity
-          style={{position: 'absolute', right: 10, top: 5}}
+          style={tw`absolute top-1 right-3`}
           onPress={() => {
             dispatch(removeWholeItem(item));
           }}>
@@ -133,46 +79,27 @@ const CartDetailScreen = ({navigation}) => {
   };
 
   return (
-    <View style={{flex: 1, backgroundColor: 'white', paddingHorizontal: 15}}>
+    <View style={tw`flex-1 bg-white px-5`}>
       <FlatList
         data={cartItems}
         renderItem={renderItem}
         keyExtractor={item => item.id}
       />
       <TouchableOpacity
-        style={{
-          width: '100%',
-          height: Dimensions.get('window').width * 0.15,
-          backgroundColor: '#000000',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: 15,
-          alignSelf: 'center',
-          bottom: 10,
-        }}
+        style={tw`w-full h-15 bg-black justify-center items-center mt-15 self-center bottom-10`}
         onPress={() => {}}>
-        <Text style={{color: 'white'}}>
+        <Text style={tw`text-white`}>
           Total Price :{' '}
           {cartItems.length == 0 ? 'GBP' : cartItems[0].price.currency}{' '}
           {totalSum.toFixed(2)}
         </Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={{
-          width: '100%',
-          height: Dimensions.get('window').width * 0.15,
-          backgroundColor: '#000000',
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: 15,
-          alignSelf: 'center',
-          bottom: 10,
-        }}
+        style={tw`w-full h-15 bg-black justify-center items-center mt-5 self-center bottom-10`}
         onPress={() => {
-          //const {cartItems} = useSelector(state => state.cart);
           navigation.navigate('Home', {cartItems});
         }}>
-        <Text style={{color: 'white'}}>Go To Store</Text>
+        <Text style={tw`text-white`}>Go To Store</Text>
       </TouchableOpacity>
     </View>
   );
