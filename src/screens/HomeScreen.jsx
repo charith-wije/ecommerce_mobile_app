@@ -9,30 +9,65 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
+import {useDispatch, useSelector} from 'react-redux';
 import {fetchData} from '../api/MainAPI';
 import IIcon from 'react-native-vector-icons/Ionicons';
+import {getProducts} from '../redux/Actions/ProductAction';
 
-const HomeScreen = ({navigation}) => {
+let eachUnitsOfCart = null;
+
+const HomeScreen = ({navigation, route}) => {
+  // const {cartItems} = useSelector(state => state.cart);
+
+  const {products, loader} = useSelector(state => state.products);
+  const dispatch = useDispatch();
+
   const [searchQuery, setSearchQuery] = useState('');
-  const [data, setData] = useState(null);
+  //const [data, setData] = useState(null);
+  const [rerender, setRerender] = useState(false);
 
   // Get the width of the screen
   const screenWidth = Dimensions.get('window').width;
   const squareSize = screenWidth * 0.45; // Adjust the multiplier as needed
 
   useEffect(() => {
-    getFullData();
+    dispatch(getProducts());
+    //getFullData();
   }, []);
 
-  const getFullData = async () => {
-    const res = await fetchData();
-    console.log(res);
-    setData(res.data.data);
+  useEffect(() => {
+    if (!loader) {
+      getCartUnitsInEachProduct();
+    }
+    console.log('data.length');
+    setRerender(!rerender);
+  }, [route.params?.cartItems, searchQuery]);
+
+  const getCartUnitsInEachProduct = () => {
+    if (!loader) {
+      eachUnitsOfCart = [];
+      filterData().map((item, index) => {
+        eachUnitsOfCart.push(0);
+        route.params?.cartItems.map((cartItem, cartItemIndex) => {
+          if (cartItem.id[0] == item.id) {
+            console.log('k');
+            eachUnitsOfCart[index] = eachUnitsOfCart[index] + cartItem.units;
+          }
+        });
+      });
+      console.log(eachUnitsOfCart);
+    }
   };
+
+  // const getFullData = async () => {
+  //   const res = await fetchData();
+  //   console.log(res);
+  //   setData(res.data.data);
+  // };
 
   // Function to filter data based on search query
   const filterData = () => {
-    return data.filter(item =>
+    return products.data.filter(item =>
       item.name.toLowerCase().includes(searchQuery.toLowerCase()),
     );
   };
@@ -43,6 +78,7 @@ const HomeScreen = ({navigation}) => {
   };
 
   const renderItem = ({item, index}) => {
+    console.log(index);
     return (
       <TouchableOpacity
         style={{
@@ -54,6 +90,26 @@ const HomeScreen = ({navigation}) => {
         onPress={() => {
           navigation.navigate('ProductDetails', {item});
         }}>
+        {eachUnitsOfCart !== null ? (
+          eachUnitsOfCart[index] !== 0 ? (
+            <View
+              style={{
+                width: '20%',
+                aspectRatio: 1,
+                backgroundColor: 'black',
+                borderRadius: 20,
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+                right: 5,
+                top: 5,
+              }}>
+              <Text style={{color: 'white', fontSize: 16}}>
+                {eachUnitsOfCart !== null ? eachUnitsOfCart[index] : 0}
+              </Text>
+            </View>
+          ) : null
+        ) : null}
         <Image
           style={{width: '100%', height: '50%'}}
           source={{
@@ -88,7 +144,7 @@ const HomeScreen = ({navigation}) => {
 
   return (
     <>
-      {data == null && (
+      {loader && (
         <View
           style={{
             flex: 1,
@@ -98,7 +154,7 @@ const HomeScreen = ({navigation}) => {
           <Text style={{fontSize: 30, fontWeight: '600'}}>Loading...</Text>
         </View>
       )}
-      {data !== null && (
+      {!loader && (
         <>
           <View style={styles.mainContainer}>
             <TextInput
@@ -108,23 +164,33 @@ const HomeScreen = ({navigation}) => {
               placeholder="Search..."
               placeholderTextColor="grey"
             />
-            <View>
+            <TouchableOpacity
+              onPress={() => {
+                navigation.navigate('Cart');
+              }}>
               <IIcon name="cart" size={35} color="#3b2eb0" />
-              <View
-                style={{
-                  backgroundColor: 'red',
-                  width: '50%',
-                  aspectRatio: 1,
-                  borderRadius: 30,
-                  position: 'absolute',
-                  right: 0,
-                  top: -5,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontSize: 13}}>0</Text>
-              </View>
-            </View>
+              {route.params?.cartItems &&
+                route.params?.cartItems.length !== 0 && (
+                  <View
+                    style={{
+                      backgroundColor: 'red',
+                      width: '50%',
+                      aspectRatio: 1,
+                      borderRadius: 30,
+                      position: 'absolute',
+                      right: 0,
+                      top: -5,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}>
+                    <Text style={{fontSize: 13}}>
+                      {route.params?.cartItems
+                        ? route.params?.cartItems.length
+                        : 0}
+                    </Text>
+                  </View>
+                )}
+            </TouchableOpacity>
           </View>
 
           <View

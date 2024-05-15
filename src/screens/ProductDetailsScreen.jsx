@@ -169,7 +169,14 @@ const ProductDetailsScreen = ({route, navigation}) => {
             alignSelf: 'center',
           }}
           onPress={() => {
-            dispatch(addItem(item));
+            let tempItem = item;
+            // Make a copy of the object to avoid mutating state directly
+            const updatedItem = {...tempItem};
+            // Modify the parameter
+            updatedItem.id = `${tempItem.id}${choosedSize}`;
+            updatedItem.choosedSize = choosedSize;
+            updatedItem.units = quantity;
+            dispatch(addItem(updatedItem));
             navigation.navigate('Cart');
           }}>
           <Text style={{color: 'white'}}>Add to Cart</Text>

@@ -18,7 +18,7 @@ const HomeStack = () => {
         <Stack.Screen
           name="ProductDetails"
           component={ProductDetailsScreen} //
-          options={{headerShown: false}}
+          //options={{headerShown: false}}
         />
         <Stack.Screen
           name="Cart"
